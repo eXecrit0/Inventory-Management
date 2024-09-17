@@ -60,9 +60,16 @@ if ($products === FALSE) {
         .product-card .btn {
             margin-top: 1rem;
         }
+        .navbar-brand {
+            font-size: 25px;
+        }
+        .nav-item {
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">Shopping Inventory</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,65 +80,87 @@ if ($products === FALSE) {
                 <li class="nav-item">
                     <a class="nav-link" href="#">Home</a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Products</a>
+                    <a class="nav-link" href="contact.php">Contact</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
+                    <a class="nav-link" href="cart.php">Cart</a>
                 </li>
             </ul>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="row">
-            <?php if ($products->num_rows > 0) : ?>
-                <?php while ($product = $products->fetch_assoc()) : ?>
-                    <div class="col-md-4">
-                        <div class="product-card card">
-                            <div id="carouselExampleRide<?php echo $product['id']; ?>" class="carousel slide" data-ride="carousel">
-                                <div class="carousel-inner">
-                                    <?php
-                                    // Display image if available
-                                    if (!empty($product['image'])) {
-                                        echo '<div class="carousel-item active">';
-                                        echo '<img src="data:' . htmlspecialchars($product['image_type']) . ';base64,' . base64_encode($product['image']) . '" class="d-block w-100" alt="Product Image">';
-                                        echo '</div>';
-                                    } else {
-                                        echo '<div class="carousel-item active">';
-                                        echo '<img src="path/to/default-image.jpg" class="d-block w-100" alt="Default Image">';
-                                        echo '</div>';
-                                    }
-                                    ?>
-                                </div>
-                                <!-- Carousel controls -->
-                                <a class="carousel-control-prev" href="#carouselExampleRide<?php echo $product['id']; ?>" role="button" data-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                                <a class="carousel-control-next" href="#carouselExampleRide<?php echo $product['id']; ?>" role="button" data-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="sr-only">Next</span>
-                                </a>
+    <div class="row">
+        <?php if ($products->num_rows > 0) : ?>
+            <?php while ($product = $products->fetch_assoc()) : ?>
+                <div class="col-md-4">
+                    <div class="product-card card">
+                        <div id="carouselExampleRide<?php echo $product['id']; ?>" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                <?php
+                                if (!empty($product['image'])) {
+                                    echo '<div class="carousel-item active">';
+                                    echo '<img src="data:' . htmlspecialchars($product['image_type']) . ';base64,' . base64_encode($product['image']) . '" class="d-block w-100" alt="Product Image">';
+                                    echo '</div>';
+                                } else {
+                                    echo '<div class="carousel-item active">';
+                                    echo '<img src="path/to/default-image.jpg" class="d-block w-100" alt="Default Image">';
+                                    echo '</div>';
+                                }
+                                ?>
                             </div>
-                            <div  id="container" class="card-body">
-                                <h5 class="card-title"><?php echo htmlspecialchars($product['product_name']); ?></h5>
-                                <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
-                                <p class="price">$<?php echo htmlspecialchars($product['price']); ?></p>
-                                <a href="#" class="btn btn-primary" id="no">Add to Cart</a>
-                                <a href="?edit=<?php echo $product['id']; ?>" class="btn btn-success" onclick="return confirm('Kupal kaba boss!!')">Buy</a>
-                               
-                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleRide<?php echo $product['id']; ?>" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleRide<?php echo $product['id']; ?>" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($product['product_name']); ?></h5>
+                            <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
+                            <p class="price">$<?php echo htmlspecialchars($product['price']); ?></p>
+                            <p class="quantity">Available Quantity: <?php echo htmlspecialchars($product['quantity']); ?></p>
+                            <a href="#" class="btn btn-primary add-to-cart" data-product-id="<?php echo $product['id']; ?>">Add to Cart</a>
+                            <a href="buy.php?id=<?php echo $product['id']; ?>" class="btn btn-success">Buy</a>
                         </div>
                     </div>
-                <?php endwhile; ?>
-            <?php else : ?>
-                <p class="text-center">No products found.</p>
-            <?php endif; ?>
-        </div>
+                </div>
+            <?php endwhile; ?>
+        <?php else : ?>
+            <p class="text-center">No products found.</p>
+        <?php endif; ?>
     </div>
+</div>
     <script>
-       
+       document.addEventListener('DOMContentLoaded', function() {
+    var addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+    addToCartButtons.forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            var productId = this.getAttribute('data-product-id');
+            
+            fetch('add_to_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'product_id=' + encodeURIComponent(productId)
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data); // You can customize this to show a message on the page
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
